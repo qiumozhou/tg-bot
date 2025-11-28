@@ -11,7 +11,7 @@ import { initDatabase } from '@/lib/prisma';
 import { handleStartCommand } from '@/handlers/startHandler';
 import { handleCallbackQuery } from '@/handlers/callbackHandler';
 import { handlePhotoMessage, handleTextMessage } from '@/handlers/messageHandler';
-import { SocksProxyAgent } from 'socks-proxy-agent';
+// import { SocksProxyAgent } from 'socks-proxy-agent';
 let bot: TelegramBot | null = null;
 
 /**
