@@ -34,18 +34,20 @@ export async function startPolling(): Promise<void> {
     logger.info('数据库初始化完成');
     
     // 配置 Bot 选项
-    const botOptions: any = {
+    // 注意：Cloudflare Pages 环境不支持代理配置，因此只配置基本选项
+    const botOptions: TelegramBot.ConstructorOptions = {
       polling: true,
     };
     
-    // 如果配置了代理，添加代理配置
-    // if (config.proxy) {
-    //   logger.info(`使用代理: ${config.proxy}`);
-    //   // node-telegram-bot-api 使用 request 库，代理配置格式
-    //   botOptions.request = {
-    //     proxy: config.proxy,
-    //   };
-    // }
+    // 如果配置了代理，添加代理配置（仅在非 Cloudflare 环境）
+    // Cloudflare Pages 不支持本地代理，如果需要代理，请在 Cloudflare Workers 中配置
+    if (config.proxy && typeof process.env.CF_PAGES === 'undefined') {
+      logger.info(`使用代理: ${config.proxy}`);
+      // 使用类型断言避免 TypeScript 类型检查问题
+      (botOptions as any).request = {
+        proxy: config.proxy,
+      };
+    }
     
     // 创建 Bot 实例（使用 polling 模式）
     bot = new TelegramBot(config.botToken, botOptions);
