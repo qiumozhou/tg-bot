@@ -11,7 +11,7 @@ import { initDatabase } from '@/lib/prisma';
 import { handleStartCommand } from '@/handlers/startHandler';
 import { handleCallbackQuery } from '@/handlers/callbackHandler';
 import { handlePhotoMessage, handleTextMessage } from '@/handlers/messageHandler';
-
+import { SocksProxyAgent } from 'socks-proxy-agent';
 let bot: TelegramBot | null = null;
 
 /**
@@ -41,13 +41,14 @@ export async function startPolling(): Promise<void> {
     
     // 如果配置了代理，添加代理配置（仅在非 Cloudflare 环境）
     // Cloudflare Pages 不支持本地代理，如果需要代理，请在 Cloudflare Workers 中配置
-    if (config.proxy && typeof process.env.CF_PAGES === 'undefined') {
-      logger.info(`使用代理: ${config.proxy}`);
-      // 使用类型断言避免 TypeScript 类型检查问题
-      (botOptions as any).request = {
-        proxy: config.proxy,
-      };
-    }
+    // if (config.proxy && typeof process.env.CF_PAGES === 'undefined') {
+    //   logger.info(`使用代理: ${config.proxy}`);
+    //   const socksAgent = new SocksProxyAgent(config.proxy);  // 创建代理实例
+    //   botOptions.request = {  // 或 client: { baseFetchConfig: { ... } }，视 grammY 版本
+    //     agent: socksAgent  // 使用 agent 而非 proxy
+    //     // compress: true,      // 可选：启用压缩优化性能
+    //   };
+    //     }
     
     // 创建 Bot 实例（使用 polling 模式）
     bot = new TelegramBot(config.botToken, botOptions);
