@@ -12,20 +12,20 @@ datasource db {
 
 // 用户模型
 model User {
-  id                       Int       @id @default(autoincrement())
-  telegramId              BigInt    @unique @map("telegram_id")
-  username                String?   @map("username")
-  firstName               String?   @map("first_name")
-  lastName                String?   @map("last_name")
-  points                  Int       @default(0) @map("points")
-  level                   String    @default("P1") @map("level")
-  referralCode            String    @unique @map("referral_code")
-  referredBy              BigInt?   @map("referred_by")
-  isActive                Boolean   @default(true) @map("is_active")
-  lastReferralBonusDate   String?   @map("last_referral_bonus_date")
-  dailyReferralPoints     Int       @default(0) @map("daily_referral_points")
-  createdAt               DateTime  @default(now()) @map("created_at")
-  updatedAt               DateTime  @updatedAt @map("updated_at")
+  id                    Int      @id @default(autoincrement())
+  telegramId            BigInt   @unique @map("telegram_id")
+  username              String?  @map("username")
+  firstName             String?  @map("first_name")
+  lastName              String?  @map("last_name")
+  points                Int      @default(0) @map("points")
+  level                 String   @default("P1") @map("level")
+  referralCode          String   @unique @map("referral_code")
+  referredBy            BigInt?  @map("referred_by")
+  isActive              Boolean  @default(true) @map("is_active")
+  lastReferralBonusDate String?  @map("last_referral_bonus_date")
+  dailyReferralPoints   Int      @default(0) @map("daily_referral_points")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
 
   orders       Order[]
   payments     Payment[]
@@ -38,18 +38,18 @@ model User {
 
 // 订单模型
 model Order {
-  id          Int      @id @default(autoincrement())
-  userId      BigInt   @map("user_id")
-  user        User?    @relation(fields: [userId], references: [telegramId], onDelete: Cascade)
-  orderNo     String   @unique @map("order_no")
-  orderType   String   @map("order_type") // IMAGE or VIDEO
-  status      String   @default("PENDING") @map("status") // PENDING, PROCESSING, COMPLETED, FAILED
-  pointsCost  Int      @map("points_cost")
-  imageUrl    String?  @map("image_url")
-  videoUrl    String?  @map("video_url")
-  errorMessage String? @map("error_message")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id           Int      @id @default(autoincrement())
+  userId       BigInt   @map("user_id")
+  user         User?    @relation(fields: [userId], references: [telegramId], onDelete: Cascade)
+  orderNo      String   @unique @map("order_no")
+  orderType    String   @map("order_type") // IMAGE or VIDEO
+  status       String   @default("PENDING") @map("status") // PENDING, PROCESSING, COMPLETED, FAILED
+  pointsCost   Int      @map("points_cost")
+  imageUrl     String?  @map("image_url")
+  videoUrl     String?  @map("video_url")
+  errorMessage String?  @map("error_message")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@index([userId])
   @@index([orderNo])
@@ -92,4 +92,3 @@ model Transaction {
   @@index([userId])
   @@map("transactions")
 }
-

@@ -34,13 +34,14 @@ export async function startPolling(): Promise<void> {
     logger.info('数据库初始化完成');
     
     // 配置 Bot 选项
-    const botOptions: TelegramBot.ConstructorOptions = {
+    const botOptions: any = {
       polling: true,
     };
     
     // 如果配置了代理，添加代理配置
     if (config.proxy) {
       logger.info(`使用代理: ${config.proxy}`);
+      // node-telegram-bot-api 使用 request 库，代理配置格式
       botOptions.request = {
         proxy: config.proxy,
       };

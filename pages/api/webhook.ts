@@ -6,7 +6,7 @@
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
 import TelegramBot from 'node-telegram-bot-api';
-import { config, validateConfig } from '@/lib/config';
+import { config as appConfig, validateConfig } from '@/lib/config';
 import logger from '@/lib/logger';
 import { initDatabase } from '@/lib/prisma';
 import { handleStartCommand } from '@/handlers/startHandler';
@@ -29,7 +29,7 @@ function initBot(): TelegramBot {
   try {
     validateConfig();
     
-    bot = new TelegramBot(config.botToken, { polling: false });
+    bot = new TelegramBot(appConfig.botToken, { polling: false });
     
     // 注册命令处理器
     bot.onText(/\/start(.*)/, async (msg, match) => {
@@ -109,12 +109,21 @@ export const config = {
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
+    // 处理 CORS 预检请求
+    if (req.method === 'OPTIONS') {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+      return res.status(200).end();
+    }
+    
     // 记录所有请求
     logger.info(`收到 Webhook 请求 - Method: ${req.method}, URL: ${req.url}`);
     
     // 只接受 POST 请求
     if (req.method !== 'POST') {
       logger.warn(`收到非 POST 请求: ${req.method}`);
+      res.setHeader('Allow', 'POST, OPTIONS');
       return res.status(405).json({ error: 'Method not allowed' });
     }
     

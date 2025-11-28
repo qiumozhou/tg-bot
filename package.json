@@ -12,7 +12,8 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "bot:dev": "tsx scripts/start-polling.ts"
+    "bot:dev": "tsx scripts/start-polling.ts",
+    "deploy:cf": "npm run build && wrangler pages deploy .next"
   },
   "dependencies": {
     "@prisma/client": "^5.9.0",
