@@ -1,0 +1,130 @@
+# GitHub Actions 自动部署到 Cloudflare Workers
+# 
+# 当代码推送到 main 分支时自动部署
+# 
+# @author seven
+# @since 2025-11-28
+
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Workers
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      # 2. 设置 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      # 3. 安装依赖
+      - name: Install dependencies
+        run: npm ci
+        
+      # 4. 生成 Prisma Client
+      - name: Generate Prisma Client
+        run: npm run db:generate
+        
+      # 5. 类型检查和构建
+      - name: Type check and build
+        run: npm run build
+        
+      # 6. 部署到 Cloudflare Workers
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
+        env:
+          # 环境变量会自动同步到 Cloudflare Workers
+          # 敏感信息应在 Cloudflare Dashboard 中配置为 Secret
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          ALIPAY_APP_ID: ${{ secrets.ALIPAY_APP_ID }}
+          ALIPAY_PRIVATE_KEY: ${{ secrets.ALIPAY_PRIVATE_KEY }}
+          ALIPAY_PUBLIC_KEY: ${{ secrets.ALIPAY_PUBLIC_KEY }}
+          ALIPAY_NOTIFY_URL: ${{ secrets.ALIPAY_NOTIFY_URL }}
+          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          WECHAT_MCH_ID: ${{ secrets.WECHAT_MCH_ID }}
+          WECHAT_API_KEY: ${{ secrets.WECHAT_API_KEY }}
+          WECHAT_NOTIFY_URL: ${{ secrets.WECHAT_NOTIFY_URL }}
+          USTD_API_KEY: ${{ secrets.USTD_API_KEY }}
+          USTD_NOTIFY_URL: ${{ secrets.USTD_NOTIFY_URL }}
+          OFFICIAL_CHANNEL_ID: ${{ secrets.OFFICIAL_CHANNEL_ID }}
+          IMAGE_GENERATION_API_URL: ${{ secrets.IMAGE_GENERATION_API_URL }}
+          IMAGE_GENERATION_API_KEY: ${{ secrets.IMAGE_GENERATION_API_KEY }}
+          VIDEO_GENERATION_API_URL: ${{ secrets.VIDEO_GENERATION_API_URL }}
+          VIDEO_GENERATION_API_KEY: ${{ secrets.VIDEO_GENERATION_API_KEY }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          
+      # 7. 设置 Telegram Webhook
+      - name: Set Telegram Webhook
+        if: success()
+        run: |
+          WORKER_URL="${{ secrets.WEBHOOK_URL }}"
+          BOT_TOKEN="${{ secrets.BOT_TOKEN }}"
+          
+          if [ -z "$WORKER_URL" ] || [ -z "$BOT_TOKEN" ]; then
+            echo "⚠️  WEBHOOK_URL 或 BOT_TOKEN 未设置，跳过 Webhook 设置"
+            exit 0
+          fi
+          
+          echo "设置 Telegram Webhook..."
+          RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/setWebhook" \
+            -H "Content-Type: application/json" \
+            -d "{\"url\": \"${WORKER_URL}/webhook\"}")
+          
+          echo "Telegram API 响应: $RESPONSE"
+          
+          # 检查是否成功
+          if echo "$RESPONSE" | grep -q '"ok":true'; then
+            echo "✅ Webhook 设置成功！"
+          else
+            echo "❌ Webhook 设置失败"
+            exit 1
+          fi
+          
+      # 8. 验证 Webhook 状态
+      - name: Verify Webhook
+        if: success()
+        run: |
+          BOT_TOKEN="${{ secrets.BOT_TOKEN }}"
+          
+          if [ -z "$BOT_TOKEN" ]; then
+            echo "⚠️  BOT_TOKEN 未设置，跳过 Webhook 验证"
+            exit 0
+          fi
+          
+          echo "验证 Webhook 状态..."
+          RESPONSE=$(curl -s "https://api.telegram.org/bot${BOT_TOKEN}/getWebhookInfo")
+          
+          echo "Webhook 信息:"
+          echo "$RESPONSE" | jq '.'
+          
+      # 9. 部署成功通知
+      - name: Deployment success
+        if: success()
+        run: |
+          echo "🎉 部署成功！"
+          echo "Worker URL: ${{ secrets.WEBHOOK_URL }}"
+          echo "请在 Telegram 中测试你的 Bot"
+          
+      # 10. 部署失败通知
+      - name: Deployment failed
+        if: failure()
+        run: |
+          echo "❌ 部署失败，请检查日志"
+

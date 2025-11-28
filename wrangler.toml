@@ -1,25 +1,61 @@
-# Cloudflare Workers/Pages 配置文件
-# 用于部署到 Cloudflare
+# Cloudflare Workers 配置文件
+# 用于部署 Telegram Bot 到 Cloudflare Workers
+#
+# @author seven
+# @since 2025-11-28
 
 name = "tg-bot"
-compatibility_date = "2024-11-28"
+main = "src/index.ts"
+compatibility_date = "2025-11-28"
+compatibility_flags = ["nodejs_compat"]
 
-# Pages 配置
-pages_build_output_dir = ".next"
+# Workers 配置
+workers_dev = true
 
-# 环境变量（在 Cloudflare Dashboard 中设置）
-# [vars]
-# BOT_TOKEN = "your-bot-token"
-# DATABASE_URL = "your-database-url"
-
-# KV 命名空间（如果需要）
-# [[kv_namespaces]]
-# binding = "MY_KV_NAMESPACE"
-# id = "your-kv-namespace-id"
-
-# D1 数据库（推荐用于 SQLite 替代方案）
+# D1 数据库绑定
+# 使用 wrangler d1 create tg-bot-db 创建数据库后，更新 database_id
 [[d1_databases]]
 binding = "DB"
 database_name = "tg-bot-db"
 database_id = "76e2bd8b-2e12-42d3-bec5-3f26112b2785"
 
+# 环境变量（非敏感信息）
+# 敏感信息应在 Cloudflare Dashboard 中设置为 Secret
+[vars]
+NODE_ENV = "production"
+LOG_LEVEL = "info"
+
+# 开发环境配置
+# 本地开发时的环境变量从 .dev.vars 文件读取
+[env.development]
+workers_dev = true
+
+# 生产环境配置
+[env.production]
+workers_dev = false
+
+# 构建配置
+[build]
+command = "npm run build"
+
+# 添加自定义域名
+[[routes]]
+pattern = "amitgbot.undream.love"
+zone_name = "undream.love"
+custom_domain = true
+
+# 日志和监控配置
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = false
+persist = true
+head_sampling_rate = 1

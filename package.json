@@ -1,40 +1,40 @@
 {
   "name": "tg-bot",
   "version": "1.0.0",
-  "description": "Telegram Bot built with Next.js",
+  "description": "Telegram Bot built with Cloudflare Workers",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "tsc",
+    "start": "wrangler dev",
+    "lint": "eslint src lib handlers services --ext .ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "bot:dev": "tsx scripts/start-polling.ts",
-    "deploy:cf": "npm run build && wrangler pages deploy .next"
+    "db:d1-create": "wrangler d1 create tg-bot-db",
+    "db:d1-migrate-local": "wrangler d1 execute tg-bot-db --local --file=./migrations/schema.sql",
+    "db:d1-migrate-remote": "wrangler d1 execute tg-bot-db --remote --file=./migrations/schema.sql",
+    "cf:login": "wrangler login",
+    "cf:deploy": "wrangler deploy",
+    "cf:tail": "wrangler tail"
   },
   "dependencies": {
+    "@prisma/adapter-d1": "^5.9.0",
     "@prisma/client": "^5.9.0",
     "axios": "^1.6.5",
-    "dotenv": "^16.4.1",
-    "next": "^14.1.0",
-    "node-telegram-bot-api": "^0.64.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "winston": "^3.11.0"
+    "node-telegram-bot-api": "^0.64.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
     "@types/node": "^20.11.0",
     "@types/node-telegram-bot-api": "^0.64.0",
-    "@types/react": "^18.2.48",
-    "@types/react-dom": "^18.2.18",
     "eslint": "^8.56.0",
-    "eslint-config-next": "^14.1.0",
     "prisma": "^5.9.0",
     "tsx": "^4.20.6",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "wrangler": "^3.22.0"
   },
   "author": "seven",
   "license": "ISC"

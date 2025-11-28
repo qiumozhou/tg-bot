@@ -4,7 +4,19 @@
  * @author seven
  * @since 2024
  */
-import { InlineKeyboardMarkup } from 'node-telegram-bot-api';
+
+/**
+ * Inline Keyboard Markup 类型定义（兼容 Workers）
+ */
+export interface InlineKeyboardButton {
+  text: string;
+  callback_data?: string;
+  url?: string;
+}
+
+export interface InlineKeyboardMarkup {
+  inline_keyboard: InlineKeyboardButton[][];
+}
 
 /**
  * 欢迎消息

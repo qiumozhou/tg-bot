@@ -1,18 +1,19 @@
 /**
- * 配置管理
+ * 配置管理（适配 Cloudflare Workers）
+ * 
+ * Cloudflare Workers 通过环境变量绑定获取配置，不需要 dotenv
+ * 本地开发时配置从 .dev.vars 文件读取
  * 
  * @author seven
- * @since 2024
+ * @since 2025-11-28
  */
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 /**
  * 应用配置
+ * 从环境变量中读取配置
  * 
  * @author seven
- * @since 2024
+ * @since 2025-11-28
  */
 export const config = {
   // Telegram Bot 配置
@@ -58,7 +59,6 @@ export const config = {
   
   // 日志配置
   logLevel: process.env.LOG_LEVEL || 'INFO',
-  logFile: process.env.LOG_FILE || 'logs/bot.log',
   
   // Webhook 配置
   webhookUrl: process.env.WEBHOOK_URL || '',
@@ -66,17 +66,29 @@ export const config = {
   
   // 代理配置（用于访问 Telegram API）
   proxy: process.env.PROXY_URL || undefined,
+  
+  // 环境信息
+  nodeEnv: process.env.NODE_ENV || 'production',
 };
 
 /**
  * 验证必要的配置项
  * 
+ * @throws {Error} 当必要配置缺失时抛出错误
  * @author seven
- * @since 2024
+ * @since 2025-11-28
  */
 export function validateConfig(): void {
+  console.log('验证配置...');
+  
   if (!config.botToken) {
-    throw new Error('BOT_TOKEN 环境变量未设置，请在 .env 文件中配置');
+    const errorMsg = 'BOT_TOKEN 环境变量未设置，请在环境变量中配置';
+    console.error(errorMsg);
+    throw new Error(errorMsg);
   }
+  
+  console.log('配置验证通过');
+  console.log(`环境: ${config.nodeEnv}`);
+  console.log(`日志级别: ${config.logLevel}`);
 }
 

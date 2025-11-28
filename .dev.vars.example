@@ -1,0 +1,87 @@
+# Cloudflare Workers 本地开发环境变量配置示例
+# 复制此文件为 .dev.vars 并填入你的真实配置
+# 
+# ⚠️ 重要：.dev.vars 包含敏感信息，不要提交到 Git 仓库！
+# 
+# @author seven
+# @since 2025-11-28
+
+# ======================
+# Telegram Bot 配置
+# ======================
+BOT_TOKEN=your_telegram_bot_token_here
+
+# ======================
+# 数据库配置
+# ======================
+# 本地开发使用 SQLite
+DATABASE_URL=file:./data/bot.db
+
+# 生产环境使用 D1（自动绑定，不需要配置 URL）
+# DATABASE_URL 会被 D1 绑定覆盖
+
+# ======================
+# 支付宝支付配置
+# ======================
+ALIPAY_APP_ID=your_alipay_app_id
+ALIPAY_PRIVATE_KEY=your_alipay_private_key
+ALIPAY_PUBLIC_KEY=your_alipay_public_key
+ALIPAY_NOTIFY_URL=https://your-worker.workers.dev/api/notify/alipay
+
+# ======================
+# 微信支付配置
+# ======================
+WECHAT_APP_ID=your_wechat_app_id
+WECHAT_MCH_ID=your_wechat_mch_id
+WECHAT_API_KEY=your_wechat_api_key
+WECHAT_NOTIFY_URL=https://your-worker.workers.dev/api/notify/wechat
+
+# ======================
+# USDT 支付配置
+# ======================
+USTD_API_KEY=your_usdt_api_key
+USTD_NOTIFY_URL=https://your-worker.workers.dev/api/notify/usdt
+
+# ======================
+# 官方频道配置
+# ======================
+# Telegram 频道 ID（带 @ 或数字 ID）
+OFFICIAL_CHANNEL_ID=@your_channel_name
+
+# ======================
+# 图像生成 API 配置
+# ======================
+IMAGE_GENERATION_API_URL=https://your-image-api.com/generate
+IMAGE_GENERATION_API_KEY=your_image_api_key
+
+# ======================
+# 视频生成 API 配置
+# ======================
+VIDEO_GENERATION_API_URL=https://your-video-api.com/generate
+VIDEO_GENERATION_API_KEY=your_video_api_key
+
+# ======================
+# Webhook 配置
+# ======================
+# 部署后的 Worker URL
+WEBHOOK_URL=https://your-worker.workers.dev
+WEBHOOK_SECRET=your_webhook_secret_optional
+
+# ======================
+# 代理配置（可选）
+# ======================
+# 如果需要通过代理访问 Telegram API
+# PROXY_URL=http://proxy.example.com:8080
+
+# ======================
+# 日志配置
+# ======================
+LOG_LEVEL=INFO
+# 可选值: ERROR, WARN, INFO, DEBUG
+
+# ======================
+# 环境配置
+# ======================
+NODE_ENV=development
+# 可选值: development, production
+
