@@ -1,0 +1,95 @@
+// Prisma Schema
+// This file defines the database schema for the Telegram Bot
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 用户模型
+model User {
+  id                       Int       @id @default(autoincrement())
+  telegramId              BigInt    @unique @map("telegram_id")
+  username                String?   @map("username")
+  firstName               String?   @map("first_name")
+  lastName                String?   @map("last_name")
+  points                  Int       @default(0) @map("points")
+  level                   String    @default("P1") @map("level")
+  referralCode            String    @unique @map("referral_code")
+  referredBy              BigInt?   @map("referred_by")
+  isActive                Boolean   @default(true) @map("is_active")
+  lastReferralBonusDate   String?   @map("last_referral_bonus_date")
+  dailyReferralPoints     Int       @default(0) @map("daily_referral_points")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  orders       Order[]
+  payments     Payment[]
+  transactions Transaction[]
+
+  @@index([telegramId])
+  @@index([referralCode])
+  @@map("users")
+}
+
+// 订单模型
+model Order {
+  id          Int      @id @default(autoincrement())
+  userId      BigInt   @map("user_id")
+  user        User?    @relation(fields: [userId], references: [telegramId], onDelete: Cascade)
+  orderNo     String   @unique @map("order_no")
+  orderType   String   @map("order_type") // IMAGE or VIDEO
+  status      String   @default("PENDING") @map("status") // PENDING, PROCESSING, COMPLETED, FAILED
+  pointsCost  Int      @map("points_cost")
+  imageUrl    String?  @map("image_url")
+  videoUrl    String?  @map("video_url")
+  errorMessage String? @map("error_message")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([orderNo])
+  @@map("orders")
+}
+
+// 支付模型
+model Payment {
+  id            Int      @id @default(autoincrement())
+  userId        BigInt   @map("user_id")
+  user          User?    @relation(fields: [userId], references: [telegramId], onDelete: Cascade)
+  orderNo       String   @unique @map("order_no")
+  paymentMethod String   @map("payment_method") // ALIPAY, WECHAT, USDT
+  status        String   @default("PENDING") @map("status") // PENDING, PAID, FAILED, EXPIRED
+  amount        Float    @map("amount")
+  points        Int      @map("points")
+  paymentUrl    String?  @map("payment_url")
+  callbackData  String?  @map("callback_data")
+  paidAt        String?  @map("paid_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([orderNo])
+  @@map("payments")
+}
+
+// 交易记录模型
+model Transaction {
+  id              Int      @id @default(autoincrement())
+  userId          BigInt   @map("user_id")
+  user            User?    @relation(fields: [userId], references: [telegramId], onDelete: Cascade)
+  transactionType String   @map("transaction_type") // CHARGE, CONSUME, REFERRAL
+  points          Int      @map("points")
+  relatedUserId   BigInt?  @map("related_user_id")
+  description     String?  @map("description")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("transactions")
+}
+
