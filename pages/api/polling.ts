@@ -39,13 +39,13 @@ export async function startPolling(): Promise<void> {
     };
     
     // 如果配置了代理，添加代理配置
-    if (config.proxy) {
-      logger.info(`使用代理: ${config.proxy}`);
-      // node-telegram-bot-api 使用 request 库，代理配置格式
-      botOptions.request = {
-        proxy: config.proxy,
-      };
-    }
+    // if (config.proxy) {
+    //   logger.info(`使用代理: ${config.proxy}`);
+    //   // node-telegram-bot-api 使用 request 库，代理配置格式
+    //   botOptions.request = {
+    //     proxy: config.proxy,
+    //   };
+    // }
     
     // 创建 Bot 实例（使用 polling 模式）
     bot = new TelegramBot(config.botToken, botOptions);
